@@ -56,10 +56,6 @@ resource "aws_key_pair" "deployer" {
   public_key = var.public_key
 }
 
-data "template_file" "user_data" {
-	template = file("${abspath(path.module)}/userdata.yaml")
-}
-
 data "aws_ami" "amazon-linux-2" {
  	most_recent = true
 	owners = ["amazon"]
@@ -80,7 +76,7 @@ resource "aws_instance" "my_server" {
   instance_type = var.instance_type
 	key_name = "${aws_key_pair.deployer.key_name}"
 	vpc_security_group_ids = [aws_security_group.sg_my_server.id]
-	user_data = data.template_file.user_data.rendered
+	user_data = templatefile("${path.module}/userdata.yaml", {})
 
   tags = {
     Name = var.server_name
